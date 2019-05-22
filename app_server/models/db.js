@@ -25,13 +25,14 @@ gracefulShutdown = function (msg, callback) {
   });
 };
 
-/* Send message to gracefulShutdown and callback to kill process, emitting SIGUSR2 again */
+/* For nodemon restarts */
 process.once('SIGUSR2', function () {
   gracefulShutdown('nodemon restart', function () {
     process.kill(process.pid, 'SIGUSR2');
   });
 });
 
+/* For app termination */
 process.on('SIGINT', function () {
   gracefulShutdown('app terination', function () {
     process.exit(0);
