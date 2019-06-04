@@ -1,6 +1,8 @@
 var mongoose = require( 'mongoose' );
 var gracefulShutdown;
 var dbURI = 'mongodb://localhost/Loc8r';
+// mongoose.set('useFindAndModify', false);
+// mongoose.set('useCreateIndex', true);
 mongoose.connect(dbURI, { useNewUrlParser: true });
 
 // Monitoring for successful connection through Mongoose
@@ -46,3 +48,4 @@ process.on('SIGINT', function () {
   });
 });*/
 
+require('./locations');

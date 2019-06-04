@@ -69,7 +69,7 @@ module.exports.locationInfo = function(req, res) {
         timestamp: '16 July 2013',
         reviewText: 'What a great place. I can\'t say enough good things about it.'
       }, {
-        name: 'Charlie Chaplin',
+        author: 'Charlie Chaplin',
         rating: 3,
         timestamp: '3 July 2013',
         reviewText: 'It was okay. Coffee wasn\'t great, but the wifi was fast.'
