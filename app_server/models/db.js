@@ -1,8 +1,9 @@
 var mongoose = require( 'mongoose' );
 var gracefulShutdown;
 var dbURI = 'mongodb://localhost/Loc8r';
-// mongoose.set('useFindAndModify', false);
-// mongoose.set('useCreateIndex', true);
+if (process.env.NODE_ENV === 'poduction') {
+  // dbURI = 'mongodb://heroku_app20110907:4rqhlidfdqq6vgdi06c15jrlpf@ds033669.mongolab.com:33669/heroku_app20110907';
+}
 mongoose.connect(dbURI, { useNewUrlParser: true, useCreateIndex: true });
 
 // Monitoring for successful connection through Mongoose
