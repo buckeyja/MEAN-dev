@@ -7,9 +7,32 @@ var sendJsonREsponse = function (res, status, content) {
   res.json(content);
 }
 
-module.exports.reviewsCreate = function(req, res) { };
-module.exports.reviewsReadOne = function(req, res) {
-  if(req.params && req.params.locationid && req.params.reviewid){
+// Public Methods
+
+const reviewsCreate = (req, res) => {
+  const locationid = req.params.locationid;
+  if ( locationid ) {
+    Loc
+      .findById(locationid)
+      .select('reviews')
+      .exec((err, location) => {
+        if ( err ) {
+          res
+            .status(400)
+            .json(err);
+        } else {
+          _doAddReview(req, res, location);
+        }
+      });
+  } else {
+    res
+      .status(404)
+      .json({"message": "Location not found"});
+  }
+};
+
+const reviewsReadOne = function(req, res) {
+  if (req.params && req.params.locationid && req.params.reviewid) {
     Loc
     .findById(req.params.locationid)
     .select('name reviews')
@@ -54,5 +77,65 @@ module.exports.reviewsReadOne = function(req, res) {
     });
   }
 };
-module.exports.reviewsUpdateOne = function(req, res) { };
-module.exports.reviewsDeleteOne = function(req, res) { };
+
+
+const reviewsUpdateOne = function(req, res) { };
+const reviewsDeleteOne = function(req, res) { };
+
+// Private Helper Methods
+
+const _doSetAverageRating = (location) => {
+  if (location.reviews && location.reviews.length > 0) {
+    const count = location.reviews.length;
+    const total = location.reviews.reduce((acc, {rating}) => { // Uses the JavaScript array reduce method to sum up the ratings of the subdocuments
+      return acc + rating;
+    }, 0);
+
+    location.rating = parseInt(total / count, 10); // Calculates the avergae rating value and updates the rating value of the parent document
+    location.save(err => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(`Average rating updated to ${location.rating}`); // This only gives one decimal
+      }
+    });
+  }
+};
+
+const _updateAverageRating = (locationid) => { // Finds the location based on the provided locationid data
+  Loc.findById(locationid)
+    .select('rating reviews')
+    .exec((err, location) =>{
+      if (!err) {
+        _doSetAverageRating(location);
+      }
+    });
+};
+
+const _doAddReview = function(req, res, location) {
+  location.reviews.push({
+     author: req.body.author,
+     rating: req.body.rating,
+     reviewText: req.body.reviewText
+  });
+  location.save((err, location) => {
+    if (err) {
+      res
+        .status(400)
+        .json(err);
+    } else {
+      _updateAverageRating(location._id);
+      let thisReview = location.reviews.length -1
+      res
+        .status(201)
+        .json(thisReview);
+    }
+  });
+}
+
+module.exports = {
+  reviewsCreate,
+  reviewsReadOne,
+  reviewsUpdateOne,
+  reviewsDeleteOne
+};
