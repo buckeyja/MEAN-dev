@@ -1,11 +1,23 @@
 var mongoose = require('mongoose');
 var Loc = mongoose.model('Location');
 
-/* Helper Functions */
-var sendJsonResponse = function (res, status, content) {
-  res.status(status);
-  res.json(content);
-};
+
+// Private Helper Methods
+
+const _buildLocationList = (req, res, results, stats) => {
+  let locations = [];
+  results.forEach((doc) => {
+    locations.push({
+      distance: doc.dis,
+      name: doc.name,
+      address: doc.rating,
+      facilities: doc.facilities,
+      _id: doc._id
+    });
+  });
+  return locaitons;
+}
+
 var theEarth = (function() {
   var earthRadius = 6371; // km, miles is 3959
 
@@ -23,48 +35,91 @@ var theEarth = (function() {
   };
 })();
 
-// NOTE: Model.geoNear() was removed in Mongoose v5 becuase the MongoDB (v4.0) driver no longer supports it
-// https://github.com/mongodb/node-mongodb-native/blob/master/CHANGES_3.0.0.md#geonear-command-helper
-
 // Public Mehtods
-
-const locationsListByDistance = function (req, res) {
-  var lng = parseFloat(req.query.lng);
-  var lat = parseFloat(req.query.lat);
-  var point = {
+const locationsListByDistance = (req, res) => {
+  const lng = parseFloat(req.query.lng);
+  const lat = parseFloat(req.query.lat);
+  const maxDistance = parseFloat(req.query.maxDistance);
+  const point = {
     type: "Point",
-    cooridnates: [lng, lat]
+    coordinates: [lng, lat]
   };
   var geoOptions = {
     spherical: true,
-    maxDistance: theEarth.getRadsFromDistance(20),
+    maxDistance: theEarth.getRadsFromDistance(6370),
     num: 10
   };
-  if (!lng || !lat) {
-    sendJsonResponse(res, 404, {
-      "message": "lng and lat query parameters are required"
-    });
+  if (!lng || !lat || !maxDistance) {
+    res
+      .status(404)
+      .json({
+        message: 'lng, lat and maxDistance query parameters are required'
+      });
     return;
   }
-  Loc.geoNear(point, options, function (err, results, stats) {
-    var locations = [];
-    if (err) {
-      sendJsonResponse(res, 404, err);
-    } else {
-      results.forEach(function(doc) {
+  Loc.aggregate([
+        {
+            $geoNear: {
+                near: point,
+                maxDistance: 20,
+                distanceField: "dist.calculated",
+                num: 10,
+                spherical: true
+            }
+        }
+    ],
+    (err, results, stats) => {
+      // _buildLocationList(req, res, results, stats); Using _buildLocaitonsList causes locations to become "undefined".
+      let locations = [];
+      results.forEach((doc) => {
         locations.push({
-          distance: theEarth.getDistanceFromRads(doc.dis),
-          name: doc.obj.name,
-          address: doc.obj.address,
-          rating: doc.obj.rating,
-          facilities: doc.obj.facilities,
-          _id: docObj._id
+          distance: doc.dis,
+          name: doc.name,
+          address: doc.rating,
+          facilities: doc.facilities,
+          _id: doc._id
         });
       });
-      sendJsonResponse(res, 200, locations);
-    }
+      console.log('Geo Results', results);
+      console.log('Geo Stats', stats); // stats undefined
+      res
+        .status(200)
+        .json(locations);
   });
 };
+/*
+const locationsListByDistance = async (req, res) => {
+  const lng = parseFloat(req.query.lng);
+  const lat = parseFloat(req.query.lat);
+  const maxDistance = parseFloat(req.query.maxDistance);
+  const point = {
+    type: "Point",
+    cooridnates: [lng, lat]
+  };
+  const geoOptions = {
+    distanceField: "distance.calculated",
+    spherical: true,
+    maxDistance: 20000,
+    limit: 10
+  };
+  if (!lng || !lat || !maxDistance) {
+    res
+      .status(404)
+      .json({
+        message: 'lng, lat and maxDistance query parameters are required'
+      });
+    return;
+  }
+  Loc.geoNear(point, geoOptions, (err, results, stats) => {
+    const locaitons = _buildLocationList(req, res, results, stats);
+    console.log('Geo Results', results);
+    console.log('Geo stats', stats);
+    res
+      .status(200)
+      .json(locaiotns);
+  })
+};
+*/
 const locationsCreate = function (req, res) {
   Loc.create({
     name: req.body.name,
@@ -84,32 +139,44 @@ const locationsCreate = function (req, res) {
     }]
   }, function(err, location) {
     if (err) {
-      sendJsonResponse(res, 400, err);
-    } else {
-      sendJsonResponse(res, 201, location);
-    }
+      res
+        .status(400)
+        .json(err);
+      } else {
+      res
+        .status(201)
+        .json(location);
+      }
   });
 };
 const locationsReadOne = function (req, res) {
   if (req.params && req.params.locationid) {
     Loc
-    .findById(req.params.locationid)
-    .exec(function(err, location) {
-      if (!location) {
-        sendJsonResponse (res, 404, {
-          "message": "locationid not found"
-        });
-        return;
-      } else if (err) {
-        sendJsonResponse (res, 404, err);
-        return;
-      }
-      sendJsonResponse (res, 200, location);
-    });    
+      .findById(req.params.locationid)
+      .exec(function(err, location) {
+        if (!location) {
+          res
+            .status(404)
+            .json({
+              "message": "locationid not found"
+            });
+          return;
+        } else if (err) {
+          res
+            .status(404)
+            .json(err);
+          return;
+        }
+        res
+          .status(200)
+          .json(location);
+      });   
   } else {
-    sendJsonResponse (res, 404, {
-      "message": "No locationid in request"
-    });
+    res
+      .status(404)
+      .json({
+        "message": "No locationid in request"
+      });
   }
 };
 
