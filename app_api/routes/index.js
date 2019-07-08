@@ -1,7 +1,7 @@
-var express = require('express');
-var router = express.Router();
-var ctrlLocations = require('../controllers/locations');
-var ctrlReviews =require('../controllers/reviews');
+const express = require('express');
+const router = express.Router();
+const ctrlLocations = require('../controllers/locations');
+const ctrlReviews =require('../controllers/reviews');
 
 // Locations
 router
