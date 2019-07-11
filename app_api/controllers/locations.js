@@ -4,19 +4,22 @@ var Loc = mongoose.model('Location');
 
 // Private Helper Methods
 
+/*
 const _buildLocationList = (req, res, results, stats) => {
   let locations = [];
   results.forEach((doc) => {
     locations.push({
-      distance: doc.dis,
+      distance: doc.dist.calculated,
       name: doc.name,
-      address: doc.rating,
+      address: doc.address,
+      rating: doc.rating,
       facilities: doc.facilities,
       _id: doc._id
     });
   });
-  return locaitons;
+  return locations;
 }
+*/
 
 var theEarth = (function() {
   var earthRadius = 6371; // km, miles is 3959
@@ -46,10 +49,10 @@ const locationsListByDistance = (req, res) => {
   };
   var geoOptions = {
     spherical: true,
-    maxDistance: theEarth.getRadsFromDistance(6370),
+    maxDistance: 2000, //theEarth.getRadsFromDistance(6370),
     num: 10
   };
-  if (!lng || !lat || !maxDistance) {
+  if ((!lng && lng !==0) || (!lat && lat !==0) || !maxDistance) { // && lng/lat !== 0 used incase lat or lang = 0 it will not incorectly claim it's null
     res
       .status(404)
       .json({
@@ -69,13 +72,14 @@ const locationsListByDistance = (req, res) => {
         }
     ],
     (err, results, stats) => {
-      // _buildLocationList(req, res, results, stats); Using _buildLocaitonsList causes locations to become "undefined".
       let locations = [];
+      // _buildLocationList(req, res, results, stats); // Using _buildLocaitonsList causes locations to become "undefined".
       results.forEach((doc) => {
         locations.push({
-          distance: doc.dis,
+          distance: doc.dist.calculated,
           name: doc.name,
-          address: doc.rating,
+          address: doc.address,
+          rating: doc.rating,
           facilities: doc.facilities,
           _id: doc._id
         });
@@ -85,41 +89,10 @@ const locationsListByDistance = (req, res) => {
       res
         .status(200)
         .json(locations);
-  });
+    }
+  );
 };
-/*
-const locationsListByDistance = async (req, res) => {
-  const lng = parseFloat(req.query.lng);
-  const lat = parseFloat(req.query.lat);
-  const maxDistance = parseFloat(req.query.maxDistance);
-  const point = {
-    type: "Point",
-    cooridnates: [lng, lat]
-  };
-  const geoOptions = {
-    distanceField: "distance.calculated",
-    spherical: true,
-    maxDistance: 20000,
-    limit: 10
-  };
-  if (!lng || !lat || !maxDistance) {
-    res
-      .status(404)
-      .json({
-        message: 'lng, lat and maxDistance query parameters are required'
-      });
-    return;
-  }
-  Loc.geoNear(point, geoOptions, (err, results, stats) => {
-    const locaitons = _buildLocationList(req, res, results, stats);
-    console.log('Geo Results', results);
-    console.log('Geo stats', stats);
-    res
-      .status(200)
-      .json(locaiotns);
-  })
-};
-*/
+
 const locationsCreate = function (req, res) {
   Loc.create({
     name: req.body.name,
