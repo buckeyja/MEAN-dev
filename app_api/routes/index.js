@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ctrlLocations = require('../controllers/locations');
-const ctrlReviews =require('../controllers/reviews');
+const ctrlReviews = require('../controllers/reviews');
 
 // Locations
 router
@@ -10,7 +10,7 @@ router
   .post(ctrlLocations.locationsCreate);
 
 router
-  .route('/locaitons/:locationid')
+  .route('/locations/:locationid')
   .get(ctrlLocations.locationsReadOne)
   .put(ctrlLocations.locationsUpdateOne)
   .delete(ctrlLocations.locationsDeleteOne);
