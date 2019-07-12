@@ -7,7 +7,4 @@ block content
         h1= title
     .row
       .col-md-c.col-sm-12
-        p
-          | Loc8r was created to help people find places to sit down and get a bit of work done.
-          | <br /><br />
-          | Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus nisl magna, semper in suscipit sit amet, congue consectetur dolor. Donec a magna a lorem viverra tristique a eu nulla. Pellentesque quis vehicula tortor. Pellentesque vulputate iaculis tristique. Maecenas convallis augue nec tempor lacinia. Nam id blandit enim. Praesent turpis sapien, porta eu lorem sit amet, ultricies lobortis nisl. Curabitur quis efficitur risus. Vestibulum a mauris nec lorem venenatis placerat sed in lacus. Suspendisse pulvinar dolor id euismod vehicula. Suspendisse eros ante, convallis a aliquam ut, pellentesque at lectus.
+        p !{(content).replace(/\n/g, '<br/>')}
