@@ -47,6 +47,14 @@ const _renderDetailPage = (req, res, location) => {
   });
 };
 
+const _renderReviewForm = (req, res, {name}) => {
+  res.render('location-review-form', {
+    title: `Review ${name} on Loc8r`,
+    pageHeader: { title: `Review ${name}` },
+    error: req.query.err
+  });
+};
+
 const _showError = (req, res, status) => {
   let title = '';
   let content = '';
@@ -106,8 +114,7 @@ const homelist = (req, res) => {
   );
 };
 
-/* Get 'Location info' page */
-const locationInfo = function(req, res) {
+const getLocationInfo = (req, res, callback) => {
   const path = `/api/locations/${req.params.locationid}`;
   const requestOptions = {
     url: apiOptions.server + path,
@@ -122,8 +129,8 @@ const locationInfo = function(req, res) {
         data.coords = {
           lng: body.coords[0],
           lat: body.coords[1]
-        }
-        _renderDetailPage(req, res, data);      
+        };
+        callback(req, res, data);      
       } else {
         _showError(req, res, response.statusCode);
       }
@@ -131,17 +138,58 @@ const locationInfo = function(req, res) {
   );
 };
 
+/* Get 'Location info' page */
+const locationInfo = (req, res) => {
+  getLocationInfo(req, res, 
+    (req, res, responseData) => {
+      _renderDetailPage(req, res, responseData);
+  });
+};
+
 
 /* Get 'Add review' page */
-const addReview = function(req, res){
-	res.render('location-review-form', { 
-    title: 'Add Review',
-    pageHeader: { title: 'Review Starcups' }
+const addReview = (req, res) => {
+  getLocationInfo(req, res,
+    (req, res, responseData) => {
+      _renderReviewForm(req, res, responseData);
   });
+};
+
+/* POST reviews on specific location */
+const doAddReview = (req, res) => {
+  const locationid = req.params.locationid;
+  const path = `/api/locations/${locationid}/reviews`;
+  const postdata = {
+    author: req.body.name,
+    rating: parseInt(req.body.rating, 10),
+    reviewText: req.body.review
+  };
+  const requestOptions = {
+    url: apiOptions.server + path,
+    method: 'POST',
+    json: postdata
+  };
+  if ( !postdata.author || !postdata.rating || !postdata.reviewText ) {
+    res.redirect(`/location/${locationid}/review/new?err=val`)
+  } else {
+    request(
+      requestOptions,
+      (err, {statusCode}, {name}) => {
+        if (statusCode === 201) {
+          res.redirect(`/location/${locationid}`);
+        } else if (statusCode === 400 && name && name === 'ValidationError') {
+          res.redirect(`/location/${locationid}/review/new?err=val`);
+        } else {
+          _showError(req, res, statusCode);
+        }
+      }
+    );
+  }
 };
 
 module.exports = {
   homelist,
   locationInfo,
-  addReview
+  addReview,
+  doAddReview
 }
