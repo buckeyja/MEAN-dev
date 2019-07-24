@@ -1,0 +1,19 @@
+<div class="card">
+  <div class="card-block">
+    <h4>
+      <a href="/location/{{location._id}}">{{location.name}}</a>
+      <small>&nbsp;
+        <i class="glyphicon glyphicon-star{{ location.rating < 1 ? '-empty' : '' }}"></i>
+        <i class="glyphicon glyphicon-star{{ location.rating < 2 ? '-empty' : '' }}"></i>
+        <i class="glyphicon glyphicon-star{{ location.rating < 3 ? '-empty' : '' }}"></i>
+        <i class="glyphicon glyphicon-star{{ location.rating < 4 ? '-empty' : '' }}"></i>
+        <i class="glyphicon glyphicon-star{{ location.rating < 5 ? '-empty' : '' }}"></i>
+      </small>
+      <span class="badge pull-right badge-default">{{location.distance}}</span>
+    </h4>
+    <p class="address">{{location.address}}</p>
+    <div class="facilities">
+      <span *ngFor="let facility of location.facilities" class="label label-warning">{{facility}}</span>
+    </div>
+  </div>
+</div>
