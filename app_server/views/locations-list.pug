@@ -13,17 +13,27 @@ block content
       .row.list-group
         .error= message
 
-        each location in locations
-          .col-xs-12.list-group-item
-            h4
-              a(href=`/location/${location._id}`)= location.name
-              small &nbsp;
-                +outputRating(location.rating)
-              span.badge.pull-right.badge-default= location.distance
-            p.address= location.address
-            p
-              each facility in location.facilities
-                span.label.label-warning= facility
-                | &nbsp;
+        app-home-list Loading...
+
+        //- each location in locations
+        //-   .col-xs-12.list-group-item
+        //-     h4
+        //-       a(href=`/location/${location._id}`)= location.name
+        //-       small &nbsp;
+        //-         +outputRating(location.rating)
+        //-       span.badge.pull-right.badge-default= location.distance
+        //-     p.address= location.address
+        //-     p
+        //-       each facility in location.facilities
+        //-         span.label.label-warning= facility
+        //-         | &nbsp;
+
     .col-xs-12.col-sm-4
       p.lead= sidebar
+
+block scripts
+  script(src='/build/runtime-es2015.703a23e48ad83c851e49.js')
+  script(src='/build/polyfills-es2015.7a264d14fd7126ba8db0.js')
+  script(src='/build/main-es2015.e617d41473848b9536e3.js')
+
+     
