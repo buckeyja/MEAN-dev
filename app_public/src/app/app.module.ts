@@ -8,6 +8,7 @@ import { DistancePipe } from './distance.pipe';
 
 @NgModule({
   declarations: [
+    AppComponent,
     HomeListComponent,
     DistancePipe
   ],
