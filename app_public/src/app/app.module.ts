@@ -7,13 +7,15 @@ import { AppComponent } from './app.component';
 import { HomeListComponent } from './home-list/home-list.component';
 import { DistancePipe } from './distance.pipe';
 import { FrameworkComponent } from './framework/framework.component';
+import { AboutComponent } from './about/about.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeListComponent,
     DistancePipe,
-    FrameworkComponent
+    FrameworkComponent,
+    AboutComponent
   ],
   imports: [
     BrowserModule,
@@ -22,10 +24,14 @@ import { FrameworkComponent } from './framework/framework.component';
       {
         path: '',
         component: HomeListComponent
+      },
+      {
+        path: 'about',
+        component: AboutComponent
       }
     ])
   ],
   providers: [],
-  bootstrap: [HomeListComponent]
+  bootstrap: [FrameworkComponent]
 })
 export class AppModule { }
