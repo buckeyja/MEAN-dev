@@ -49,10 +49,11 @@ const locationsListByDistance = (req, res) => {
   };
   var geoOptions = {
     spherical: true,
-    maxDistance: 2000, //theEarth.getRadsFromDistance(6370),
+    maxDistance: 20000, //theEarth.getRadsFromDistance(6370),
     num: 10
   };
   if ((!lng && lng !==0) || (!lat && lat !==0) || !maxDistance) { // && lng/lat !== 0 used incase lat or lang = 0 it will not incorectly claim it's null
+    console.log('locationsListByDistance missing params');
     res
       .status(404)
       .json({
@@ -64,7 +65,7 @@ const locationsListByDistance = (req, res) => {
         {
             $geoNear: {
                 near: point,
-                maxDistance: 20,
+                maxDistance: geoOptions.maxDistance,
                 distanceField: "dist.calculated",
                 num: 10,
                 spherical: true
