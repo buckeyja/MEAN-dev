@@ -49,7 +49,7 @@ const locationsListByDistance = (req, res) => {
   };
   var geoOptions = {
     spherical: true,
-    maxDistance: 20000, //theEarth.getRadsFromDistance(6370),
+    maxDistance: maxDistance, //theEarth.getRadsFromDistance(6370),
     num: 10
   };
   if ((!lng && lng !==0) || (!lat && lat !==0) || !maxDistance) { // && lng/lat !== 0 used incase lat or lang = 0 it will not incorectly claim it's null
