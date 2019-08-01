@@ -5,7 +5,10 @@
     <div class="card card-primary">
       <div class="card-block">
         <h2 class="card-title">Opening hours</h2>
-        <!-- opening times to go here -->
+        <p class="card-text" *ngFor="let time of location.openingTimes" [ngSwitch]="time.closed">
+          {{ time.days }} :
+          <span *ngSwitchCase="true">Closed</span>
+          <span *ngSwitchDefault>{{ time.opening + " - " + time.closing }}</span>
       </div>
     </div>
     <div class="card card-primary">
