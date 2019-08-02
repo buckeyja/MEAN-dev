@@ -35,7 +35,7 @@
     <div class="card card-primary review-card">
       <div class="card-block"><a href="/location/{{location._id}}/review/new" class="btn btn-primary float-right">Add review</a>
         <h2 class="card-title">Customer reviews</h2>
-        <div *ngFor="let review of location.reviews" class="row review">
+        <div *ngFor="let review of location.reviews | mostRecentFirst" class="row review">
           <div class="col-12 no-gutters review-header">
             <app-rating-stars [rating]="review.rating"></app-rating-stars>
             <span class="reviewAuthor">{{ review.author }}</span>
