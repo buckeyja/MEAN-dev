@@ -39,7 +39,7 @@
           <div class="col-12 no-gutters review-header">
             <app-rating-stars [rating]="review.rating"></app-rating-stars>
             <span class="reviewAuthor">{{ review.author }}</span>
-            <small class="reviewTimestamp">{{ review.createdOn }}</small>
+            <small class="reviewTimestamp">{{ review.createdOn | date: 'd MMMM yyyy' }}</small>
           </div>
           <div class="col-12">
             <p [innerHTML]="review.reviewText | htmlLineBreaks"></p>
