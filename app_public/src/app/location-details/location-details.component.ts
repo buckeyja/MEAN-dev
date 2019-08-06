@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Location } from '../home-list/home-list.component';
-import { Loc8rDataService } from '../loc8r-data.service';
 
+import { Location } from '../location';
+import { Loc8rDataService } from '../loc8r-data.service';
 
 @Component({
   selector: 'app-location-details',
