@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 
-import { Location } from '../location';
+import { Location, Review } from '../location';
 import { Loc8rDataService } from '../loc8r-data.service';
 
 @Component({
@@ -18,10 +18,11 @@ export class LocationDetailsComponent implements OnInit {
 
   public formError: string;
   
-  public newReview = {
+  public newReview: Review = {
     author: '',
     rating: 5,
-    reviewText: ''
+    reviewText: '',
+    createdOn: new Date // Preferably this should be blank.
   };
 
   constructor(private loc8rDataService: Loc8rDataService) { }
@@ -46,8 +47,8 @@ export class LocationDetailsComponent implements OnInit {
     if (this.formIsValid()) {
       console.log('Review to add', this.newReview);
       this.loc8rDataService.addReviewByLocationId(this.location._id, this.newReview)
-        .then(review => {
-          console.log('Review saved', this.newReview);
+        .then((review: Review) => {
+          console.log('Review saved', this.newReview);// this.newReview
           let reviews = this.location.reviews;
           // You need to construct the review or else the base this.newReview blank values are used instead.
           this.location.reviews.unshift({author: this.newReview.author, rating: this.newReview.rating, reviewText: this.newReview.reviewText, createdOn: new Date()});
