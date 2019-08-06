@@ -35,6 +35,15 @@ export class Loc8rDataService {
       .catch(this.handleError);
   }
 
+  public addReviewByLocationId(locationId: string, formData: any): Promise<any> {
+    const url: string = `${this.apiBaseUrl}/locations/${locationId}/reviews`;
+    return this.http
+      .post(url, formData)
+      .toPromise()
+      .then(response => response as any)
+      .catch(this.handleError);
+  }
+
   private handleError(error: any): Promise<any> {
     console.error('Something has gone wrong', error);
     return Promise.reject(error.message || error);

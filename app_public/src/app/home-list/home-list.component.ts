@@ -10,6 +10,7 @@ export class Location {
   address: string;
   rating: number;
   facilities: string[];
+  reviews: any[];
 }
 
 @Component({
