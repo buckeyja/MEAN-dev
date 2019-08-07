@@ -3,8 +3,12 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-require('./app_api/models/db');
 require('dotenv').config();
+
+// Passport should be required before the database models and the configuraiton after the database models.
+const passport = require('passport');
+require('./app_api/models/db');
+require('./app_api/config/passport');
 
 var indexRouter = require('./app_server/routes/index');
 var routesApi = require('./app_api/routes/index');
@@ -22,10 +26,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'app_public')));
+app.use(passport.initialize());
 
 app.use('/api', function(req, res, next) {
   res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   next();
 });
 
