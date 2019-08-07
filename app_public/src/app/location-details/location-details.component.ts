@@ -3,6 +3,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { Location, Review } from '../location';
 import { Loc8rDataService } from '../loc8r-data.service';
 
+
 @Component({
   selector: 'app-location-details',
   templateUrl: './location-details.component.html',
@@ -12,7 +13,7 @@ export class LocationDetailsComponent implements OnInit {
 
   @Input() location: Location;
 
-  public googleAPIKey: string = '<AIzaSyAJsF4qbHF9mQenMsDpIlYbL5ThEKxwCR4>';
+  public googleAPIKey: string = 'A-non-valid-key';//process.env.GOOGLE_API;
 
   public formVisible: boolean = false;
 
