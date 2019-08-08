@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var Loc = mongoose.model('Location');
+const User = mongoose.model('User');
 
 /* Placeholder Functions */
 var sendJsonREsponse = function (res, status, content) {
@@ -10,25 +11,29 @@ var sendJsonREsponse = function (res, status, content) {
 // Public Methods
 
 const reviewsCreate = (req, res) => {
-  const locationid = req.params.locationid;
-  if ( locationid ) {
-    Loc
-      .findById(locationid)
-      .select('reviews')
-      .exec((err, location) => {
-        if ( err ) {
-          res
-            .status(400)
-            .json(err);
-        } else {
-          _doAddReview(req, res, location);
-        }
-      });
-  } else {
-    res
-      .status(404)
-      .json({"message": "Location not found"});
-  }
+  _getAuthor((req, res, callback) => {
+    (req, res, userName) => {
+      const locationId = req.params.locationid;
+      if (locationId) {
+        Loc
+          .findById(locationId)
+          .select('reviews')
+          .exec((err, location) => {
+            if (err) {
+              return res
+                .status(400)
+                .json(err);
+            } else {
+              _doAddReview(req, res, location, userName);
+            }
+          });
+      } else {
+        res
+          .status(404)
+          .json({"message": "Location not found"});
+      }
+    }
+  });
 };
 
 const reviewsReadOne = function(req, res) {
@@ -217,6 +222,57 @@ const _doSetAverageRating = (location) => {
   }
 };
 
+const _doAddReview = function(req, res, location, author) {
+  if (!location) {
+    res
+      .status(404)
+      .json({"message": "Location not found"});
+  } else {
+    const {rating, reviewText} = req.body;
+    location.reviews.push({
+       author: req.body.author,
+       rating: req.body.rating,
+       reviewText: req.body.reviewText
+    });
+    location.save((err, location) => {
+      if (err) {
+        res
+          .status(400)
+          .json(err);
+      } else {
+        _updateAverageRating(location._id);
+        let thisReview = location.reviews.length -1
+        res
+          .status(201)
+          .json(thisReview);
+      }
+    });
+  }
+};
+
+const _getAuthor = (req, res, callback) => {
+  if (req.payload && req.paload.email) {
+    User
+      .findOne({ email : req.payload.email })
+      .exec((err, user) => {
+        if (!user) {
+          return res
+            .status(404)
+            .json({"message": "User not found"});
+        } else if (err) {
+          return res
+            .status(404)
+            .json(err);
+        }
+        callback(req, res, user.name);
+      });
+  } else {
+    return res
+      .status(404)
+      .json({"message": "User not found"});
+  }
+};
+
 const _updateAverageRating = (locationid) => { // Finds the location based on the provided locationid data
   Loc.findById(locationid)
     .select('rating reviews')
@@ -226,27 +282,6 @@ const _updateAverageRating = (locationid) => { // Finds the location based on th
       }
     });
 };
-
-const _doAddReview = function(req, res, location) {
-  location.reviews.push({
-     author: req.body.author,
-     rating: req.body.rating,
-     reviewText: req.body.reviewText
-  });
-  location.save((err, location) => {
-    if (err) {
-      res
-        .status(400)
-        .json(err);
-    } else {
-      _updateAverageRating(location._id);
-      let thisReview = location.reviews.length -1
-      res
-        .status(201)
-        .json(thisReview);
-    }
-  });
-}
 
 module.exports = {
   reviewsCreate,
