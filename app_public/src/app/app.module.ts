@@ -19,6 +19,7 @@ import { DetailsPageComponent } from './details-page/details-page.component';
 import { MostRecentFirstPipe } from './most-recent-first.pipe';
 import { AppComponent } from './app.component';
 import { RegisterComponent } from './register/register.component';
+import { LoginComponent } from './login/login.component';
 
 
 @NgModule({
@@ -36,7 +37,8 @@ import { RegisterComponent } from './register/register.component';
     LocationDetailsComponent,
     DetailsPageComponent,
     MostRecentFirstPipe,
-    RegisterComponent
+    RegisterComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
