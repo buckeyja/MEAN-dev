@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
-
 import { Location, Review } from '../location';
 import { Loc8rDataService } from '../loc8r-data.service';
+import { AuthenticationService } from '../authentication.service';
 
 
 @Component({
@@ -26,7 +26,10 @@ export class LocationDetailsComponent implements OnInit {
     createdOn: new Date // Preferably this should be blank.
   };
 
-  constructor(private loc8rDataService: Loc8rDataService) { }
+  constructor(
+    private loc8rDataService: Loc8rDataService,
+    private authenticationService: AuthenticationService
+  ) { }
 
   private resetAndHideReviewForm(): void {
     this.formVisible = false;
@@ -36,23 +39,33 @@ export class LocationDetailsComponent implements OnInit {
   }
 
   private formIsValid(): boolean {
-    if ( this.newReview.author && this.newReview.rating && this.newReview.reviewText) {
+    if ( this.newReview.rating && this.newReview.reviewText) {
       return true;
     } else {
       return false;
     }
   }
 
+  public isLoggedIn(): boolean {
+    return this.authenticationService.isLoggedIn();
+  }
+
+  public getUsername(): string {
+    const { name } = this.authenticationService.getCurrentUser();
+    return name ? name : 'Guest'; // If user is not logged in returns Guest
+  }
+
   public onReviewSubmit(): void {
     this.formError = '';
+    this.newReview.author = this.getUsername();
     if (this.formIsValid()) {
       console.log('Review to add', this.newReview);
       this.loc8rDataService.addReviewByLocationId(this.location._id, this.newReview)
         .then((review: Review) => {
-          console.log('Review saved', this.newReview);// this.newReview
+          console.log('Review saved', this.newReview);
           let reviews = this.location.reviews;
-          // You need to construct the review or else the base this.newReview blank values are used instead.
-          this.location.reviews.unshift({author: this.newReview.author, rating: this.newReview.rating, reviewText: this.newReview.reviewText, createdOn: new Date()});
+          reviews.unshift(review);
+          this.location.reviews = reviews;
           this.resetAndHideReviewForm();
         });
     } else {
