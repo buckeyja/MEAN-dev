@@ -11,8 +11,7 @@ var sendJsonREsponse = function (res, status, content) {
 // Public Methods
 
 const reviewsCreate = (req, res) => {
-  _getAuthor((req, res, callback) => {
-    (req, res, userName) => {
+  _getAuthor(req, res, (req, res, userName) => {
       const locationId = req.params.locationid;
       if (locationId) {
         Loc
@@ -32,7 +31,6 @@ const reviewsCreate = (req, res) => {
           .status(404)
           .json({"message": "Location not found"});
       }
-    }
   });
 };
 
@@ -230,9 +228,9 @@ const _doAddReview = function(req, res, location, author) {
   } else {
     const {rating, reviewText} = req.body;
     location.reviews.push({
-       author: req.body.author,
-       rating: req.body.rating,
-       reviewText: req.body.reviewText
+     author,
+     rating,
+     reviewText
     });
     location.save((err, location) => {
       if (err) {
@@ -241,7 +239,7 @@ const _doAddReview = function(req, res, location, author) {
           .json(err);
       } else {
         _updateAverageRating(location._id);
-        let thisReview = location.reviews.length -1
+        const thisReview = location.reviews.slice(-1).pop();
         res
           .status(201)
           .json(thisReview);
@@ -251,7 +249,7 @@ const _doAddReview = function(req, res, location, author) {
 };
 
 const _getAuthor = (req, res, callback) => {
-  if (req.payload && req.paload.email) {
+  if (req.payload && req.payload.email) {
     User
       .findOne({ email : req.payload.email })
       .exec((err, user) => {
